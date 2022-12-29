@@ -156,8 +156,9 @@
         }).then((response) => {
             const {username} = response.data;
             let authorization = response.config.headers.Authorization;
-            let tokens = authorization.split(';');
-            sessionStorage.setItem('session', JSON.stringify({access_token: tokens[0], refresh_token: tokens[1]}));
+            let access = authorization.split(' ')[1];
+            let refresh = response.config.headers.Refresh;
+            sessionStorage.setItem('session', JSON.stringify({access_token: access, refresh_token: refresh}));
 
             if (username) {
                 const mainHolder = document.getElementById("main-holder");
