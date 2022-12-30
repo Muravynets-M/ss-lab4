@@ -14,10 +14,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 const AUTHORIZATION_KEY = 'Authorization';
 
+const client_id = '151nsiI8qmZak5bAXEpNU0cTTWelt5KK';
 const AuthenticationClient = new auth0.AuthenticationClient(
     {
         domain: 'dev-pa5jh1kbknfmplvz.us.auth0.com',
-        clientId: 'IBD5KfpnSaNOqfhYiyqbtnw2uwrKehsP',
+        clientId: client_id,
         clientSecret: 'K6iFygMuS8FndiKPtsp0CVv3GE8qIfx9XKgD_madeSMNuAuk9zwIvjTXrO20NGHk'
     }
 );
@@ -25,7 +26,7 @@ const AuthenticationClient = new auth0.AuthenticationClient(
 const ManagementClient = new auth0.ManagementClient(
     {
         domain: 'dev-pa5jh1kbknfmplvz.us.auth0.com',
-        clientId: 'IBD5KfpnSaNOqfhYiyqbtnw2uwrKehsP',
+        clientId: client_id,
         clientSecret: 'K6iFygMuS8FndiKPtsp0CVv3GE8qIfx9XKgD_madeSMNuAuk9zwIvjTXrO20NGHk'
     }
 )
@@ -75,7 +76,15 @@ app.get('/', (req, res) => {
             logout: 'http://localhost:3000/logout'
         })
     }
-    res.sendFile(path.join(__dirname + '/index.html'));
+    //res.sendFile(path.join(__dirname + '/index.html'));
+    const uri = new URL('https://dev-pa5jh1kbknfmplvz.us.auth0.com/authorize');
+
+    uri.searchParams.append('client_id', client_id);
+    uri.searchParams.append('redirect_uri', 'http://localhost:3000/callback');
+    uri.searchParams.append('response_type', 'code');
+    uri.searchParams.append('response_mode', 'query');
+
+    res.redirect(uri.toString());
 })
 
 app.get('/logout', (req, res) => {
@@ -102,6 +111,13 @@ app.post('/api/login', async (req, res) => {
         access_token: loginResult.access_token,
         refresh_token: loginResult.refresh_token
     });
+});
+
+app.get('/callback', (req, res) => {
+    const code = req.query.code;
+    console.log(code);
+
+    res.status(200).send()
 });
 
 const checkJwt = auth({
@@ -140,7 +156,6 @@ app.post('/api/register', async (req, res) => {
     }
 
     console.log(createResult)
-    res.status(200).send();
 });
 
 async function auth0Login(login, password) {
